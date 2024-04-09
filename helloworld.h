@@ -6,42 +6,75 @@
 #ifndef _HELLOWORLD_H_RPCGEN
 #define _HELLOWORLD_H_RPCGEN
 
-#define RPCGEN_VERSION	199506
-
 #include <rpc/rpc.h>
 
 
-struct numbers {
-	int a;
-	int b;
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+
+struct Info_itf {
+	char name[256];
 };
-typedef struct numbers numbers;
+typedef struct Info_itf Info_itf;
+
+struct Message_itf {
+	int id;
+	char name[256];
+	char message[256];
+	struct Message_itf *next;
+};
+typedef struct Message_itf Message_itf;
+
+#define CHAT_PROG 0x20000001
+#define CHAT_VERS 1
+
+#if defined(__STDC__) || defined(__cplusplus)
+#define join 1
+extern  int * join_1(Info_itf *, CLIENT *);
+extern  int * join_1_svc(Info_itf *, struct svc_req *);
+#define print_clients 2
+extern  void * print_clients_1(void *, CLIENT *);
+extern  void * print_clients_1_svc(void *, struct svc_req *);
+#define update 3
+extern  Message_itf * update_1(int *, CLIENT *);
+extern  Message_itf * update_1_svc(int *, struct svc_req *);
+#define send_message 4
+extern  void * send_message_1(Message_itf *, CLIENT *);
+extern  void * send_message_1_svc(Message_itf *, struct svc_req *);
+extern int chat_prog_1_freeresult (SVCXPRT *, xdrproc_t, caddr_t);
+
+#else /* K&R C */
+#define join 1
+extern  int * join_1();
+extern  int * join_1_svc();
+#define print_clients 2
+extern  void * print_clients_1();
+extern  void * print_clients_1_svc();
+#define update 3
+extern  Message_itf * update_1();
+extern  Message_itf * update_1_svc();
+#define send_message 4
+extern  void * send_message_1();
+extern  void * send_message_1_svc();
+extern int chat_prog_1_freeresult ();
+#endif /* K&R C */
+
+/* the xdr functions */
+
+#if defined(__STDC__) || defined(__cplusplus)
+extern  bool_t xdr_Info_itf (XDR *, Info_itf*);
+extern  bool_t xdr_Message_itf (XDR *, Message_itf*);
+
+#else /* K&R C */
+extern bool_t xdr_Info_itf ();
+extern bool_t xdr_Message_itf ();
+
+#endif /* K&R C */
+
 #ifdef __cplusplus
-extern "C" bool_t xdr_numbers(XDR *, numbers*);
-#elif __STDC__
-extern  bool_t xdr_numbers(XDR *, numbers*);
-#else /* Old Style C */
-bool_t xdr_numbers();
-#endif /* Old Style C */
-
-
-#define ADD_PROG ((rpc_uint)0x20000001)
-#define ADD_VERS ((rpc_uint)1)
-
-#ifdef __cplusplus
-#define add ((rpc_uint)1)
-extern "C" int * add_1(numbers *, CLIENT *);
-extern "C" int * add_1_svc(numbers *, struct svc_req *);
-
-#elif __STDC__
-#define add ((rpc_uint)1)
-extern  int * add_1(numbers *, CLIENT *);
-extern  int * add_1_svc(numbers *, struct svc_req *);
-
-#else /* Old Style C */
-#define add ((rpc_uint)1)
-extern  int * add_1();
-extern  int * add_1_svc();
-#endif /* Old Style C */
+}
+#endif
 
 #endif /* !_HELLOWORLD_H_RPCGEN */

@@ -5,38 +5,124 @@
  */
 
 #include "helloworld.h"
+#include <pthread.h>
+
+int last_message_id = -1;
+char name[256];
+
+// liste de message à envoyé:
+typedef struct messages {
+	Message_itf *message;
+	struct messages *next;
+} messages;
+
+static messages *message_to_send = NULL;
+
+
+void *update_chat(void *arg) {
+	CLIENT *clnt = (CLIENT *)arg;
+	while (1) {
+		int  update_1_arg;
+		update_1_arg = last_message_id;
+		Message_itf *result_1;
+		result_1 = update_1(&update_1_arg, clnt);
+
+		if (result_1 != NULL && result_1->id > last_message_id) {
+			if (strcmp(result_1->name, name) != 0) {
+				printf("[%s] %s\n", result_1->name, result_1->message);
+			}
+			last_message_id = result_1->id;
+		}
+		
+		usleep(100000);
+	}
+
+
+
+
+}
 
 
 void
-add_prog_1(host)
-char *host;
+chat_prog_1(char *host)
 {
 	CLIENT *clnt;
 	int  *result_1;
-	numbers  add_1_arg;
-	clnt = clnt_create(host, ADD_PROG, ADD_VERS, "udp");
+	Info_itf  join_1_arg;
+	void  *result_2;
+	char *print_clients_1_arg;
+	Message_itf  *result_3;
+	int  update_1_arg;
+	void  *result_4;
+	Message_itf  send_message_1_arg;
+
+#ifndef	DEBUG
+	clnt = clnt_create (host, CHAT_PROG, CHAT_VERS, "udp");
 	if (clnt == NULL) {
-		clnt_pcreateerror(host);
-		exit(1);
+		clnt_pcreateerror (host);
+		exit (1);
 	}
-	result_1 = add_1(&add_1_arg, clnt);
-	if (result_1 == NULL) {
-		clnt_perror(clnt, "call failed:");
+#endif	/* DEBUG */
+	printf("Enter your name: ");
+	scanf("%s", name);
+	strcpy(join_1_arg.name, name);
+	result_1 = join_1(&join_1_arg, clnt);
+	
+
+	if (result_1 == (int *) NULL) {
+		clnt_perror (clnt, "call failed");
 	}
-	clnt_destroy( clnt );
+
+	pthread_t thread;
+
+	pthread_create(&thread, NULL, update_chat, clnt);
+
+
+
+	char c;
+
+	printf("> ");
+	while (1) {
+		
+		char message[256];
+		int i = 0;
+		
+		while ((c = getchar()) != '\n') {
+			message[i++] = c;
+		}
+		
+		message[i] = '\0';
+
+		if (strlen(message) == 0) {
+			continue;
+		}
+
+		printf("> ");
+		
+		memset(&send_message_1_arg, 0, sizeof(send_message_1_arg));
+		strcpy(send_message_1_arg.name, name);
+		strcpy(send_message_1_arg.message, message);
+		send_message_1(&send_message_1_arg, clnt);
+	}
+
+
+#ifndef	DEBUG
+	clnt_destroy (clnt);
+#endif	 /* DEBUG */
 }
 
 
-main(argc, argv)
-int argc;
-char *argv[];
+int
+main (int argc, char *argv[])
 {
 	char *host;
 
-	if(argc < 2) {
-		printf("usage: %s server_host\n", argv[0]);
-		exit(1);
+	if (argc < 2) {
+		printf ("usage: %s server_host\n", argv[0]);
+		exit (1);
 	}
 	host = argv[1];
-	add_prog_1( host );
+	chat_prog_1 (host);
+exit (0);
 }
+
