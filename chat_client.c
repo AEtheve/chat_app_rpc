@@ -89,16 +89,15 @@ chat_prog_1(char *host)
 		clnt_perror (clnt, "call failed");
 	}
 	int  m;
-		m = print_m;
-		result_6 = print_messages_1(&m, clnt);
-		print_m++;
+	m = print_m;
+	result_6 = print_messages_1(&m, clnt);
+	print_m++;
 	if(result_6->id!=-1){
-		
-	
 		do{
 			printf(" [%s] %s\n", result_6 ->name, result_6 ->message);
 			int  m;
 			m = print_m;
+			last_message_id = result_6->id;
 			result_6 = print_messages_1(&m, clnt);
 			print_m++;
 		}while(result_6->id!=-1);
