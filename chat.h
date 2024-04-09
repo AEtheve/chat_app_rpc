@@ -3,8 +3,8 @@
  * It was generated using rpcgen.
  */
 
-#ifndef _HELLOWORLD_H_RPCGEN
-#define _HELLOWORLD_H_RPCGEN
+#ifndef _CHAT_H_RPCGEN
+#define _CHAT_H_RPCGEN
 
 #include <rpc/rpc.h>
 
@@ -15,6 +15,7 @@ extern "C" {
 
 
 struct Info_itf {
+	int id;
 	char name[256];
 };
 typedef struct Info_itf Info_itf;
@@ -23,7 +24,6 @@ struct Message_itf {
 	int id;
 	char name[256];
 	char message[256];
-	struct Message_itf *next;
 };
 typedef struct Message_itf Message_itf;
 
@@ -43,6 +43,12 @@ extern  Message_itf * update_1_svc(int *, struct svc_req *);
 #define send_message 4
 extern  void * send_message_1(Message_itf *, CLIENT *);
 extern  void * send_message_1_svc(Message_itf *, struct svc_req *);
+#define update_client 5
+extern  Info_itf * update_client_1(int *, CLIENT *);
+extern  Info_itf * update_client_1_svc(int *, struct svc_req *);
+#define print_messages 6
+extern  Message_itf * print_messages_1(int *, CLIENT *);
+extern  Message_itf * print_messages_1_svc(int *, struct svc_req *);
 extern int chat_prog_1_freeresult (SVCXPRT *, xdrproc_t, caddr_t);
 
 #else /* K&R C */
@@ -58,6 +64,12 @@ extern  Message_itf * update_1_svc();
 #define send_message 4
 extern  void * send_message_1();
 extern  void * send_message_1_svc();
+#define update_client 5
+extern  Info_itf * update_client_1();
+extern  Info_itf * update_client_1_svc();
+#define print_messages 6
+extern  Message_itf * print_messages_1();
+extern  Message_itf * print_messages_1_svc();
 extern int chat_prog_1_freeresult ();
 #endif /* K&R C */
 
@@ -77,4 +89,4 @@ extern bool_t xdr_Message_itf ();
 }
 #endif
 
-#endif /* !_HELLOWORLD_H_RPCGEN */
+#endif /* !_CHAT_H_RPCGEN */

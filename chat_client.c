@@ -4,21 +4,15 @@
  * as a guideline for developing your own functions.
  */
 
-#include "helloworld.h"
+#include "chat.h"
 #include <pthread.h>
+#include <newlib/sys/_pthreadtypes.h>
 
 int last_message_id = -1;
+int last_client_id = -1;
+int  print_m=0;
+//char last_message[256];
 char name[256];
-
-// liste de message à envoyé:
-typedef struct messages {
-	Message_itf *message;
-	struct messages *next;
-} messages;
-
-static messages *message_to_send = NULL;
-
-
 void *update_chat(void *arg) {
 	CLIENT *clnt = (CLIENT *)arg;
 	while (1) {
@@ -27,22 +21,38 @@ void *update_chat(void *arg) {
 		Message_itf *result_1;
 		result_1 = update_1(&update_1_arg, clnt);
 
-		if (result_1 != NULL && result_1->id > last_message_id) {
+		if (result_1 != NULL && result_1->id > last_message_id) { // si il y a un message que j'ai pas déjà envoyé
 			if (strcmp(result_1->name, name) != 0) {
 				printf("[%s] %s\n", result_1->name, result_1->message);
 			}
 			last_message_id = result_1->id;
 		}
 		
-		usleep(100000);
+		// sleep(5);
+		// sleep 100ms
+		usleep(10000);
 	}
-
-
-
-
 }
+void *update_clients(void *arg) {
+	CLIENT *clnt = (CLIENT *)arg;
+	while (1) {
+		int  update_2_arg;
+		update_2_arg = last_client_id;
+		Info_itf *result_2;
+		result_2 = update_client_1(&update_2_arg, clnt);
 
-
+		if (result_2 != NULL && result_2->id > last_client_id) {
+			if (strcmp(result_2->name, name) != 0) {
+				printf("[%s] %s\n", result_2->name);
+			}
+			last_client_id = result_2->id;
+		}
+		
+		// sleep(5);
+		// sleep 100ms
+		usleep(10000);
+	}
+}
 void
 chat_prog_1(char *host)
 {
@@ -55,6 +65,10 @@ chat_prog_1(char *host)
 	int  update_1_arg;
 	void  *result_4;
 	Message_itf  send_message_1_arg;
+	Info_itf  *result_5;
+	int  update_client_1_arg;
+	Message_itf  *result_6;
+	
 
 #ifndef	DEBUG
 	clnt = clnt_create (host, CHAT_PROG, CHAT_VERS, "udp");
@@ -63,8 +77,10 @@ chat_prog_1(char *host)
 		exit (1);
 	}
 #endif	/* DEBUG */
+
 	printf("Enter your name: ");
 	scanf("%s", name);
+	memset(&join_1_arg, 0, sizeof(join_1_arg));
 	strcpy(join_1_arg.name, name);
 	result_1 = join_1(&join_1_arg, clnt);
 	
@@ -72,21 +88,38 @@ chat_prog_1(char *host)
 	if (result_1 == (int *) NULL) {
 		clnt_perror (clnt, "call failed");
 	}
+	int  m;
+		m = print_m;
+		result_6 = print_messages_1(&m, clnt);
+		print_m++;
+	if(result_6->id!=-1){
+		
+	
+		do{
+			printf(" [%s] %s\n", result_6 ->name, result_6 ->message);
+			int  m;
+			m = print_m;
+			result_6 = print_messages_1(&m, clnt);
+			print_m++;
+		}while(result_6->id!=-1);
+	}
+	//strcpy(last_message, result_6 ->message);
+	// send_message_1_arg.id = 0;
+	// strcpy(send_message_1_arg.name, name);
+	// strcpy(send_message_1_arg.message, "Hello, world!");
+	// send_message_1(&send_message_1_arg, clnt);
 
-	pthread_t thread;
+	pthread_t thread1,thread2;
 
-	pthread_create(&thread, NULL, update_chat, clnt);
-
-
-
-	char c;
-
+	pthread_create(&thread1, NULL, update_chat, clnt);
+	pthread_create(&thread2, NULL, update_clients, clnt);
+	char c;      
 	printf("> ");
 	while (1) {
+
 		
 		char message[256];
-		int i = 0;
-		
+		int i=0;
 		while ((c = getchar()) != '\n') {
 			message[i++] = c;
 		}
@@ -106,6 +139,7 @@ chat_prog_1(char *host)
 	}
 
 
+	
 #ifndef	DEBUG
 	clnt_destroy (clnt);
 #endif	 /* DEBUG */
@@ -125,4 +159,3 @@ main (int argc, char *argv[])
 	chat_prog_1 (host);
 exit (0);
 }
-

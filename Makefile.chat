@@ -3,18 +3,18 @@
 
 # Parameters
 
-CLIENT = helloworld_client
-SERVER = helloworld_server
+CLIENT = chat_client
+SERVER = chat_server
 
 SOURCES_CLNT.c = 
 SOURCES_CLNT.h = 
 SOURCES_SVC.c = 
 SOURCES_SVC.h = 
-SOURCES.x = helloworld.x
+SOURCES.x = chat.x
 
-TARGETS_SVC.c = helloworld_svc.c helloworld_server.c helloworld_xdr.c 
-TARGETS_CLNT.c = helloworld_clnt.c helloworld_client.c helloworld_xdr.c 
-TARGETS = helloworld.h helloworld_xdr.c helloworld_clnt.c helloworld_svc.c helloworld_client.c helloworld_server.c
+TARGETS_SVC.c = chat_svc.c chat_server.c chat_xdr.c 
+TARGETS_CLNT.c = chat_clnt.c chat_client.c chat_xdr.c 
+TARGETS = chat.h chat_xdr.c chat_clnt.c chat_svc.c chat_client.c chat_server.c
 
 OBJECTS_CLNT = $(SOURCES_CLNT.c:%.c=%.o) $(TARGETS_CLNT.c:%.c=%.o)
 OBJECTS_SVC = $(SOURCES_SVC.c:%.c=%.o) $(TARGETS_SVC.c:%.c=%.o)

@@ -4,7 +4,7 @@
  * as a guideline for developing your own functions.
  */
 
-#include "helloworld.h"
+#include "chat.h"
 typedef struct clients {
 	Info_itf *client;
 	struct clients *next;
@@ -19,17 +19,27 @@ typedef struct messages {
 
 static messages *message_list = NULL;
 static int last_message_id = 0;
+static int last_client_id = 0;
 
 
 void add_client(Info_itf *client) {
 	clients *new_client = (clients *)malloc(sizeof(clients));
-	new_client->client = client;
+	Info_itf *new_client_itf = (Info_itf *)malloc(sizeof(Info_itf));
+	new_client_itf->id= last_client_id++;
+	
+	strcpy(new_client_itf->name, client->name);
+	new_client->client = new_client_itf;
 	new_client->next = client_list;
 	client_list = new_client;
 }
 
 void add_message(Message_itf *message) {
 	messages *new_message = (messages *)malloc(sizeof(messages));
+	// new_message->message = message;
+	// new_message->message->id = last_message_id++;
+	// new_message->next = message_list;
+	// message_list = new_message;
+
 	Message_itf *new_message_itf = (Message_itf *)malloc(sizeof(Message_itf));
 	new_message_itf->id = last_message_id++;
 	strcpy(new_message_itf->name, message->name);
@@ -55,36 +65,37 @@ join_1_svc(Info_itf *argp, struct svc_req *rqstp)
 	strcpy(new_client->name, argp->name);
 	add_client(new_client);
 
+
+	// messages *current = message_list;
+	// while (current != NULL) {
+	// 	printf("(%d) [%s] %s\n", current->message->id, current->message->name, current->message->message);
+	// 	current = current->next;
+	// }
+
 	return &result;
 }
-
 
 void *
 print_clients_1_svc(void *argp, struct svc_req *rqstp)
 {
 	static char * result;
-	
+
 	clients *current = client_list;
 
 	while (current != NULL) {
 		printf("[%s]\n", current->client->name);
 		current = current->next;
 	}
-	
 
 	return (void *) &result;
 }
 
-
 Message_itf *
 update_1_svc(int *argp, struct svc_req *rqstp)
 {
+	static Message_itf  result;
 
-	
-	static Message_itf result;
-	
 	messages *current = message_list;
-
 	while (current != NULL && current->message->id <= *argp) {
 		current = current->next;
 	}
@@ -99,11 +110,31 @@ update_1_svc(int *argp, struct svc_req *rqstp)
 
 	return &result;
 }
+Info_itf *
+update_client_1_svc(int *argp, struct svc_req *rqstp)
+{
+	static Info_itf result;
+
+	clients *current = client_list;
+	while (current != NULL && current->client->id <= *argp) {
+		current = current->next;
+	}
+
+	if (current != NULL) {
+		result.id = current->client->id;
+		strcpy(result.name, current->client->name);
+	} else {
+		result.id = -1;
+	}
+
+	return &result;
+}
 
 void *
 send_message_1_svc(Message_itf *argp, struct svc_req *rqstp)
 {
 	static char * result;
+
 	add_message(argp);
 
 	messages *current = message_list;
@@ -112,4 +143,31 @@ send_message_1_svc(Message_itf *argp, struct svc_req *rqstp)
 		current = current->next;
 	}
 	return (void *) &result;
+}
+
+
+Message_itf *
+print_messages_1_svc(int *argp, struct svc_req *rqstp)
+{
+	static Message_itf  result;
+
+	messages *current = message_list;
+	while (current != NULL && current->message->id > *argp) {
+		//printf("%d [%s] %s\n", current->message->id, current->message->name, current->message->message);
+		current = current->next;
+	}
+	//printf("%s", current->message->message);
+	if (current != NULL&& current->message->id == *argp) {
+		printf("%s %d\n", current->message->message,current->message->id);
+		memset(&result, 0, sizeof(result));
+		result.id = current->message->id;
+		
+		strcpy(result.name, current->message->name);
+		strcpy(result.message, current->message->message);
+		//printf("%d, %s\n",result.id, result.message);
+	} else {
+		result.id = -1;
+	}
+
+	return &result;
 }

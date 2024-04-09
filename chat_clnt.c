@@ -4,7 +4,7 @@
  */
 
 #include <memory.h> /* for memset */
-#include "helloworld.h"
+#include "chat.h"
 
 /* Default timeout can be changed using clnt_control() */
 static struct timeval TIMEOUT = { 25, 0 };
@@ -67,4 +67,34 @@ send_message_1(Message_itf *argp, CLIENT *clnt)
 		return (NULL);
 	}
 	return ((void *)&clnt_res);
+}
+
+Info_itf *
+update_client_1(int *argp, CLIENT *clnt)
+{
+	static Info_itf clnt_res;
+
+	memset((char *)&clnt_res, 0, sizeof(clnt_res));
+	if (clnt_call (clnt, update_client,
+		(xdrproc_t) xdr_int, (caddr_t) argp,
+		(xdrproc_t) xdr_Info_itf, (caddr_t) &clnt_res,
+		TIMEOUT) != RPC_SUCCESS) {
+		return (NULL);
+	}
+	return (&clnt_res);
+}
+
+Message_itf *
+print_messages_1(int *argp, CLIENT *clnt)
+{
+	static Message_itf clnt_res;
+
+	memset((char *)&clnt_res, 0, sizeof(clnt_res));
+	if (clnt_call (clnt, print_messages,
+		(xdrproc_t) xdr_int, (caddr_t) argp,
+		(xdrproc_t) xdr_Message_itf, (caddr_t) &clnt_res,
+		TIMEOUT) != RPC_SUCCESS) {
+		return (NULL);
+	}
+	return (&clnt_res);
 }
