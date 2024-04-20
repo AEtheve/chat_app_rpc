@@ -5,14 +5,14 @@
  */
 
 #include "chat.h"
-typedef struct clients { //liste des différents clients 
+typedef struct clients {
 	Info_itf *client;
 	struct clients *next;
 } clients;
 
 static clients *client_list = NULL;
 
-typedef struct messages { //liste de tous les messages
+typedef struct messages {
 	Message_itf *message;
 	struct messages *next;
 } messages;
@@ -22,7 +22,7 @@ static int last_message_id = 0;
 static int last_client_id = 0;
 
 
-void add_client(Info_itf *client) { 
+void add_client(Info_itf *client) {
 	clients *new_client = (clients *)malloc(sizeof(clients));
 	Info_itf *new_client_itf = (Info_itf *)malloc(sizeof(Info_itf));
 	new_client_itf->id= last_client_id++;
@@ -32,7 +32,6 @@ void add_client(Info_itf *client) {
 	new_client->next = client_list;
 	client_list = new_client;
 }
-// elle ajoute au début de la liste le nouveau client avec son id et son nom
 
 void add_message(Message_itf *message) {
 	messages *new_message = (messages *)malloc(sizeof(messages));
@@ -54,7 +53,6 @@ void add_message(Message_itf *message) {
 	// printf("(%d) [%s] %s\n", message->id, message->name, message->message);
 	printf("(%d) [%s] %s\n", new_message->message->id, new_message->message->name, new_message->message->message);
 }
-// ajoute un message au début de la liste des messages 
 
 int *
 join_1_svc(Info_itf *argp, struct svc_req *rqstp)
@@ -75,8 +73,7 @@ join_1_svc(Info_itf *argp, struct svc_req *rqstp)
 	// }
 
 	return &result;
-} //lorqu'elle est appélé dans le fichier client cette fonction permet d'ajouter un client
-// à la liste des clients grace à l'appel de add_client
+}
 
 void *
 print_clients_1_svc(void *argp, struct svc_req *rqstp)
@@ -91,7 +88,7 @@ print_clients_1_svc(void *argp, struct svc_req *rqstp)
 	}
 
 	return (void *) &result;
-} // affiche la liste des clients du chat
+}
 
 Message_itf *
 update_1_svc(int *argp, struct svc_req *rqstp)
@@ -112,8 +109,7 @@ update_1_svc(int *argp, struct svc_req *rqstp)
 	}
 
 	return &result;
-}// recupère le message correspondant à un id donné
-
+}
 Info_itf *
 update_client_1_svc(int *argp, struct svc_req *rqstp)
 {
@@ -132,8 +128,7 @@ update_client_1_svc(int *argp, struct svc_req *rqstp)
 	}
 
 	return &result;
-}// recupère le client correspondant à un id donné
-
+}
 
 void *
 send_message_1_svc(Message_itf *argp, struct svc_req *rqstp)
@@ -148,7 +143,7 @@ send_message_1_svc(Message_itf *argp, struct svc_req *rqstp)
 		current = current->next;
 	}
 	return (void *) &result;
-}// ajoute un message dans la liste des messages et les affiches tous 
+}
 
 
 Message_itf *
@@ -175,5 +170,4 @@ print_messages_1_svc(int *argp, struct svc_req *rqstp)
 	}
 
 	return &result;
-}// retourne le message correspondant à un id donné
-
+}

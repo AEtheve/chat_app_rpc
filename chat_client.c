@@ -23,7 +23,8 @@ void *update_chat(void *arg) {
 
 		if (result_1 != NULL && result_1->id > last_message_id) { // si il y a un message que j'ai pas déjà envoyé
 			if (strcmp(result_1->name, name) != 0) {
-				printf("[%s] %s\n", result_1->name, result_1->message);
+				// printf("[%s] %s\n", result_1->name, result_1->message);
+				printf("(%d) [%s] %s\n", result_1->id, result_1->name, result_1->message);
 			}
 			last_message_id = result_1->id;
 		}
@@ -43,7 +44,7 @@ void *update_clients(void *arg) {
 
 		if (result_2 != NULL && result_2->id > last_client_id) {
 			if (strcmp(result_2->name, name) != 0) {
-				printf("[%s] %s\n", result_2->name);
+				printf("[%s] %s\n", result_2->name, "à rejoint le chat");
 			}
 			last_client_id = result_2->id;
 		}
@@ -89,16 +90,15 @@ chat_prog_1(char *host)
 		clnt_perror (clnt, "call failed");
 	}
 	int  m;
-		m = print_m;
-		result_6 = print_messages_1(&m, clnt);
-		print_m++;
+	m = print_m;
+	result_6 = print_messages_1(&m, clnt);
+	print_m++;
 	if(result_6->id!=-1){
-		
-	
 		do{
 			printf(" [%s] %s\n", result_6 ->name, result_6 ->message);
 			int  m;
 			m = print_m;
+			last_message_id = result_6->id;
 			result_6 = print_messages_1(&m, clnt);
 			print_m++;
 		}while(result_6->id!=-1);
