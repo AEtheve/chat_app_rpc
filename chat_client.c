@@ -67,7 +67,7 @@ chat_prog_1(char *host)
 	int  update_client_1_arg;
 	Message_itf  *result_6;
 	
-
+//création de l connection avec le serveur
 #ifndef	DEBUG
 	clnt = clnt_create (host, CHAT_PROG, CHAT_VERS, "udp");
 	if (clnt == NULL) {
