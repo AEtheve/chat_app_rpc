@@ -5,52 +5,50 @@
  */
 
 #include "chat.h"
+//liste des clients
 typedef struct clients {
 	Info_itf *client;
 	struct clients *next;
-} clients;
+} clients; 
 
 static clients *client_list = NULL;
 
+
+//liste des messages
 typedef struct messages {
 	Message_itf *message;
 	struct messages *next;
 } messages;
 
 static messages *message_list = NULL;
-static int last_message_id = 0;
-static int last_client_id = 0;
+static int last_message_id = 0; //id du dernier message reçu
+static int last_client_id = 0; //id du dernier client connecté
 
-
+//ajoute un client à la liste des clients
 void add_client(Info_itf *client) {
 	clients *new_client = (clients *)malloc(sizeof(clients));
 	Info_itf *new_client_itf = (Info_itf *)malloc(sizeof(Info_itf));
-	new_client_itf->id= last_client_id++;
+	new_client_itf->id= last_client_id++; //incrémente l'id du client
 	
 	strcpy(new_client_itf->name, client->name);
 	new_client->client = new_client_itf;
 	new_client->next = client_list;
 	client_list = new_client;
+	//ajout du client en debut de liste
 }
 
+//ajoute un message à la liste des messages
 void add_message(Message_itf *message) {
 	messages *new_message = (messages *)malloc(sizeof(messages));
-	// new_message->message = message;
-	// new_message->message->id = last_message_id++;
-	// new_message->next = message_list;
-	// message_list = new_message;
-
 	Message_itf *new_message_itf = (Message_itf *)malloc(sizeof(Message_itf));
-	new_message_itf->id = last_message_id++;
+	new_message_itf->id = last_message_id++; //incrémente l'id du message
 	strcpy(new_message_itf->name, message->name);
 	strcpy(new_message_itf->message, message->message);
 
 	new_message->message = new_message_itf;
 	new_message->next = message_list;
-
 	message_list = new_message;
-
-	// printf("(%d) [%s] %s\n", message->id, message->name, message->message);
+	//ajout du message en debut de liste
 	printf("(%d) [%s] %s\n", new_message->message->id, new_message->message->name, new_message->message->message);
 }
 
@@ -64,13 +62,6 @@ join_1_svc(Info_itf *argp, struct svc_req *rqstp)
 	Info_itf *new_client = (Info_itf *)malloc(sizeof(Info_itf));
 	strcpy(new_client->name, argp->name);
 	add_client(new_client);
-
-
-	// messages *current = message_list;
-	// while (current != NULL) {
-	// 	printf("(%d) [%s] %s\n", current->message->id, current->message->name, current->message->message);
-	// 	current = current->next;
-	// }
 
 	return &result;
 }
@@ -96,10 +87,13 @@ update_1_svc(int *argp, struct svc_req *rqstp)
 	static Message_itf  result;
 
 	messages *current = message_list;
+	// si l'id du denier message est plus petit ou égal à l'id du message donné en argument
+	// cela veut dire que le dernier message à déjà été récupéré
+	//on parcours alors toute la liste des messages
 	while (current != NULL && current->message->id <= *argp) {
 		current = current->next;
 	}
-
+	//sinon on récupère le message
 	if (current != NULL) {
 		result.id = current->message->id;
 		strcpy(result.name, current->message->name);
@@ -116,10 +110,13 @@ update_client_1_svc(int *argp, struct svc_req *rqstp)
 	static Info_itf result;
 
 	clients *current = client_list;
+	// si l'id du denier client est plus petit ou égal à l'id du client donné en argument
+	// cela veut dire que le dernier client à déjà été récupéré
+	//on parcours alors toute la liste des clients
 	while (current != NULL && current->client->id <= *argp) {
 		current = current->next;
 	}
-
+	//sinon on récupère le client
 	if (current != NULL) {
 		result.id = current->client->id;
 		strcpy(result.name, current->client->name);
@@ -129,6 +126,7 @@ update_client_1_svc(int *argp, struct svc_req *rqstp)
 
 	return &result;
 }
+
 
 void *
 send_message_1_svc(Message_itf *argp, struct svc_req *rqstp)
@@ -152,11 +150,12 @@ print_messages_1_svc(int *argp, struct svc_req *rqstp)
 	static Message_itf  result;
 
 	messages *current = message_list;
+	//on parcours la liste des messages jusqu'à trouver le message avec l'id donné en argument
 	while (current != NULL && current->message->id > *argp) {
-		//printf("%d [%s] %s\n", current->message->id, current->message->name, current->message->message);
+		
 		current = current->next;
 	}
-	//printf("%s", current->message->message);
+	//si on trouve le message on le retourne
 	if (current != NULL&& current->message->id == *argp) {
 		printf("%s %d\n", current->message->message,current->message->id);
 		memset(&result, 0, sizeof(result));
@@ -164,7 +163,6 @@ print_messages_1_svc(int *argp, struct svc_req *rqstp)
 		
 		strcpy(result.name, current->message->name);
 		strcpy(result.message, current->message->message);
-		//printf("%d, %s\n",result.id, result.message);
 	} else {
 		result.id = -1;
 	}

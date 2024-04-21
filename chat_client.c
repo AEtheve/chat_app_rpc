@@ -13,6 +13,7 @@ int last_client_id = -1;
 int  print_m=0;
 //char last_message[256];
 char name[256];
+//appel la fonction update fourni par le serveur toutes les 10ms afin de récupérer le dernier message envoyer par un client
 void *update_chat(void *arg) {
 	CLIENT *clnt = (CLIENT *)arg;
 	while (1) {
@@ -24,16 +25,14 @@ void *update_chat(void *arg) {
 		if (result_1 != NULL && result_1->id > last_message_id) { // si il y a un message que j'ai pas déjà envoyé
 			if (strcmp(result_1->name, name) != 0) {
 				printf("[%s] %s\n", result_1->name, result_1->message);
-				//printf("(%d) [%s] %s\n", result_1->id, result_1->name, result_1->message);
 			}
 			last_message_id = result_1->id;
 		}
 		
-		// sleep(5);
-		// sleep 100ms
 		usleep(10000);
 	}
 }
+//appel la fonction update_client fourni par le serveur toutes les 10ms afin de récupérer le dernier client qui a rejoint le chat
 void *update_clients(void *arg) {
 	CLIENT *clnt = (CLIENT *)arg;
 	while (1) {
@@ -49,8 +48,6 @@ void *update_clients(void *arg) {
 			last_client_id = result_2->id;
 		}
 		
-		// sleep(5);
-		// sleep 100ms
 		usleep(10000);
 	}
 }
@@ -84,6 +81,8 @@ chat_prog_1(char *host)
 	memset(&join_1_arg, 0, sizeof(join_1_arg));
 	strcpy(join_1_arg.name, name);
 	result_1 = join_1(&join_1_arg, clnt);
+	//donne au serveur le nom du client qui vient de se connecter
+	// pour que ce dernier l'ajoute à la liste des clients
 	
 
 	if (result_1 == (int *) NULL) {
@@ -103,11 +102,9 @@ chat_prog_1(char *host)
 			print_m++;
 		}while(result_6->id!=-1);
 	}
-	//strcpy(last_message, result_6 ->message);
-	// send_message_1_arg.id = 0;
-	// strcpy(send_message_1_arg.name, name);
-	// strcpy(send_message_1_arg.message, "Hello, world!");
-	// send_message_1(&send_message_1_arg, clnt);
+	// tant qu'il y a des messages non affichés dans le terminal du client
+	// incrémente l'id des messages et si il 
+	// y a un message qui a cet id alors on l'affiche
 
 	pthread_t thread1,thread2;
 
@@ -136,6 +133,8 @@ chat_prog_1(char *host)
 		strcpy(send_message_1_arg.name, name);
 		strcpy(send_message_1_arg.message, message);
 		send_message_1(&send_message_1_arg, clnt);
+		// recupère le message tapé par le client et l'envoie au serveur
+		// pour que ce dernier l'ajoute à la liste des messages
 	}
 
 
