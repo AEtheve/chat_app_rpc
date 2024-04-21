@@ -23,8 +23,8 @@ void *update_chat(void *arg) {
 
 		if (result_1 != NULL && result_1->id > last_message_id) { // si il y a un message que j'ai pas déjà envoyé
 			if (strcmp(result_1->name, name) != 0) {
-				// printf("[%s] %s\n", result_1->name, result_1->message);
-				printf("(%d) [%s] %s\n", result_1->id, result_1->name, result_1->message);
+				printf("[%s] %s\n", result_1->name, result_1->message);
+				//printf("(%d) [%s] %s\n", result_1->id, result_1->name, result_1->message);
 			}
 			last_message_id = result_1->id;
 		}
